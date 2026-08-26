@@ -26,7 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.impulseguard.model.AppUiState
+import com.example.impulseguard.viewmodel.ImpulseViewModel
 import com.example.impulseguard.model.PurchaseTag
 import com.example.impulseguard.ui.components.GhostButton
 import com.example.impulseguard.ui.components.PrimaryButton
@@ -41,7 +41,7 @@ import com.example.impulseguard.ui.theme.Radius
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PurchaseLogSheet(state: AppUiState, sheetState: SheetState) {
+fun PurchaseLogSheet(state: ImpulseViewModel, sheetState: SheetState) {
     val mockAppName = state.watchedApps.find { it.id == state.mockApp?.appId }?.name ?: ""
 
     ModalBottomSheet(

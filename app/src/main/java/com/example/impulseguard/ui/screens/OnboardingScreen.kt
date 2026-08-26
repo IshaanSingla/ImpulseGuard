@@ -20,10 +20,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.impulseguard.model.AppUiState
+import com.example.impulseguard.permissions.PermissionsHelper
+import com.example.impulseguard.viewmodel.ImpulseViewModel
 import com.example.impulseguard.ui.components.PrimaryButton
 import com.example.impulseguard.ui.components.GhostButton
 import com.example.impulseguard.ui.icons.ClockIcon
@@ -42,7 +44,8 @@ import com.example.impulseguard.ui.theme.HeadingSm
 import com.example.impulseguard.ui.theme.Radius
 
 @Composable
-fun OnboardingScreen(state: AppUiState) {
+fun OnboardingScreen(state: ImpulseViewModel) {
+    val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -103,7 +106,19 @@ fun OnboardingScreen(state: AppUiState) {
                     1 -> "Allow app awareness"
                     else -> "Allow the pause screen"
                 },
-                onClick = { state.onboardPrimary() },
+                onClick = {
+                    when (state.onboardStep) {
+                        0 -> state.advanceOnboarding()
+                        1 -> {
+                            context.startActivity(PermissionsHelper.usageAccessIntent(context))
+                            state.advanceOnboarding()
+                        }
+                        else -> {
+                            context.startActivity(PermissionsHelper.overlayPermissionIntent(context))
+                            state.completeOnboarding()
+                        }
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 6.dp),

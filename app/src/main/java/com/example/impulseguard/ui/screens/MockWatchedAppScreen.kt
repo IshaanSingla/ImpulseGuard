@@ -19,7 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.impulseguard.model.AppUiState
+import com.example.impulseguard.viewmodel.ImpulseViewModel
 import com.example.impulseguard.model.ColorRole
 import com.example.impulseguard.ui.theme.Accent2_700
 import com.example.impulseguard.ui.theme.Accent600
@@ -29,7 +29,7 @@ import com.example.impulseguard.ui.theme.FigtreeFamily
 import com.example.impulseguard.ui.theme.Radius
 
 @Composable
-fun MockWatchedAppScreen(state: AppUiState) {
+fun MockWatchedAppScreen(state: ImpulseViewModel) {
     val mock = state.mockApp ?: return
     val app = state.watchedApps.find { it.id == mock.appId } ?: return
     val bg = when (app.colorRole) {

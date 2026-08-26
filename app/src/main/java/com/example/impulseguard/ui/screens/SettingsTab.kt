@@ -18,9 +18,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.impulseguard.model.AppUiState
+import com.example.impulseguard.permissions.PermissionsHelper
+import com.example.impulseguard.viewmodel.ImpulseViewModel
 import com.example.impulseguard.model.formatRupees
 import com.example.impulseguard.ui.components.OrganicCard
 import com.example.impulseguard.ui.components.OrganicSwitch
@@ -46,7 +48,8 @@ private fun sliderColors() = SliderDefaults.colors(
 )
 
 @Composable
-fun SettingsTab(state: AppUiState) {
+fun SettingsTab(state: ImpulseViewModel) {
+    val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -61,7 +64,7 @@ fun SettingsTab(state: AppUiState) {
                 SettingRow("Pause after", "${state.escalationThreshold} opens/day")
                 Slider(
                     value = state.escalationThreshold.toFloat(),
-                    onValueChange = { state.escalationThreshold = it.toInt() },
+                    onValueChange = { state.updateEscalationThreshold(it.toInt()) },
                     valueRange = 1f..6f,
                     steps = 4,
                     colors = sliderColors(),
@@ -78,7 +81,7 @@ fun SettingsTab(state: AppUiState) {
                 SettingRow("Food delivery weekly limit", "₹${formatRupees(state.foodLimit)}")
                 Slider(
                     value = state.foodLimit.toFloat(),
-                    onValueChange = { state.foodLimit = (it / 100).toInt() * 100 },
+                    onValueChange = { state.updateFoodLimit((it / 100).toInt() * 100) },
                     valueRange = 500f..6000f,
                     colors = sliderColors(),
                 )
@@ -90,7 +93,7 @@ fun SettingsTab(state: AppUiState) {
                 SettingRow("Shopping weekly limit", "₹${formatRupees(state.shopLimit)}")
                 Slider(
                     value = state.shopLimit.toFloat(),
-                    onValueChange = { state.shopLimit = (it / 100).toInt() * 100 },
+                    onValueChange = { state.updateShopLimit((it / 100).toInt() * 100) },
                     valueRange = 500f..8000f,
                     colors = sliderColors(),
                 )
@@ -103,7 +106,15 @@ fun SettingsTab(state: AppUiState) {
                     Text("Smarter tracking", fontFamily = FigtreeFamily, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold, fontSize = 14.5.sp, color = ColorText)
                     Text("Auto-detect payment confirmations instead of manual logging.", fontFamily = FigtreeFamily, fontSize = 12.sp, color = ColorText.copy(alpha = 0.65f))
                 }
-                OrganicSwitch(checked = state.smarterTracking, onToggle = { state.toggleSmarterTracking() })
+                OrganicSwitch(
+                    checked = state.smarterTracking,
+                    onToggle = {
+                        if (!state.smarterTracking && !PermissionsHelper.hasNotificationListenerAccess(context)) {
+                            context.startActivity(PermissionsHelper.notificationListenerIntent())
+                        }
+                        state.toggleSmarterTracking()
+                    },
+                )
             }
         }
 
@@ -117,7 +128,17 @@ fun SettingsTab(state: AppUiState) {
                             horizontalArrangement = Arrangement.spacedBy(10.dp),
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { state.togglePermissionWhy(perm.id) }
+                                .clickable {
+                                    if (!perm.granted) {
+                                        val intent = when (perm.id) {
+                                            "usage" -> PermissionsHelper.usageAccessIntent(context)
+                                            "overlay" -> PermissionsHelper.overlayPermissionIntent(context)
+                                            else -> PermissionsHelper.notificationListenerIntent()
+                                        }
+                                        context.startActivity(intent)
+                                    }
+                                    state.togglePermissionWhy(perm.id)
+                                }
                                 .padding(horizontal = 14.dp, vertical = 12.dp),
                         ) {
                             OrganicTag(if (perm.granted) "On" else "Off", if (perm.granted) TagStyle.Accent2 else TagStyle.Neutral)

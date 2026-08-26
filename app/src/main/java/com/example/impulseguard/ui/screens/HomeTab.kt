@@ -19,7 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.impulseguard.model.AppUiState
+import com.example.impulseguard.viewmodel.ImpulseViewModel
 import com.example.impulseguard.model.ColorRole
 import com.example.impulseguard.model.PurchaseTag
 import com.example.impulseguard.model.Tab
@@ -58,7 +58,7 @@ private fun tagStyle(tag: PurchaseTag) = when (tag) {
 }
 
 @Composable
-fun HomeTab(state: AppUiState) {
+fun HomeTab(state: ImpulseViewModel) {
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()

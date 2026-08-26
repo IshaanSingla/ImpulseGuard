@@ -19,7 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.impulseguard.model.AppUiState
+import com.example.impulseguard.viewmodel.ImpulseViewModel
 import com.example.impulseguard.model.formatRupees
 import com.example.impulseguard.ui.components.OrganicCard
 import com.example.impulseguard.ui.icons.CheckIcon
@@ -32,13 +32,14 @@ import com.example.impulseguard.ui.theme.Accent200
 import com.example.impulseguard.ui.theme.Accent700
 import com.example.impulseguard.ui.theme.Accent800
 import com.example.impulseguard.ui.theme.CaprasimoFamily
+import com.example.impulseguard.ui.theme.Neutral300
 import com.example.impulseguard.ui.theme.ColorText
 import com.example.impulseguard.ui.theme.FigtreeFamily
 import com.example.impulseguard.ui.theme.HeadingSm
 import com.example.impulseguard.ui.theme.Radius
 
 @Composable
-fun StreakTab(state: AppUiState) {
+fun StreakTab(state: ImpulseViewModel) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -74,10 +75,20 @@ fun StreakTab(state: AppUiState) {
                         .weight(1f)
                         .height(36.dp)
                         .clip(RoundedCornerShape(10.dp))
-                        .background(if (won) Accent2_200 else Accent200),
+                        .background(
+                            when (won) {
+                                true -> Accent2_200
+                                false -> Accent200
+                                null -> Neutral300
+                            },
+                        ),
                     contentAlignment = Alignment.Center,
                 ) {
-                    if (won) CheckIcon(Accent2_800) else CloseIcon(Accent800)
+                    when (won) {
+                        true -> CheckIcon(Accent2_800)
+                        false -> CloseIcon(Accent800)
+                        null -> Unit
+                    }
                 }
             }
         }
